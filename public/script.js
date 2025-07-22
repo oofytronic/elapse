@@ -1,6 +1,7 @@
 let time = 0;
 let isRunning = false;
 let laps = [];
+let startTime = null;
 let interval;
 
 function formatTime(ms) {
@@ -22,7 +23,15 @@ function getSessions() {
 
 function clearStorage() {
   localStorage.removeItem('elapse_sessions');
+  localStorage.removeItem('timer_state');
   loadDataTab();
+}
+
+function updateTimer() {
+  if (isRunning) {
+    time = Date.now() - startTime + (JSON.parse(localStorage.getItem('timer_state') || '{}').pausedTime || 0);
+    document.querySelector('#timer-display').textContent = formatTime(time);
+  }
 }
 
 function toggleTimer() {
@@ -32,12 +41,12 @@ function toggleTimer() {
   startButton.textContent = isRunning ? 'Pause' : 'Start';
   lapButton.disabled = !isRunning;
   if (isRunning) {
-    interval = setInterval(() => {
-      time += 10;
-      document.querySelector('#timer-display').textContent = formatTime(time);
-    }, 10);
+    startTime = Date.now() - (time || 0);
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning: true, startTime, pausedTime: time }));
+    interval = setInterval(updateTimer, 10);
   } else {
     clearInterval(interval);
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning: false, pausedTime: time }));
   }
 }
 
@@ -59,6 +68,7 @@ function resetTimer() {
   laps = [];
   isRunning = false;
   clearInterval(interval);
+  localStorage.removeItem('timer_state');
   document.querySelector('#timer-display').textContent = '00:00:00';
   document.querySelector('#laps').innerHTML = '';
   document.querySelector('#start-button').textContent = 'Start';
@@ -80,6 +90,19 @@ function loadTimerTab() {
       <ul id="laps"></ul>
     </div>
   `;
+  // Restore timer state if exists
+  const timerState = JSON.parse(localStorage.getItem('timer_state') || '{}');
+  if (timerState.isRunning) {
+    isRunning = true;
+    startTime = timerState.startTime;
+    time = timerState.pausedTime || 0;
+    document.querySelector('#start-button').textContent = 'Pause';
+    document.querySelector('#lap-button').disabled = false;
+    interval = setInterval(updateTimer, 10);
+  } else if (timerState.pausedTime) {
+    time = timerState.pausedTime;
+    document.querySelector('#timer-display').textContent = formatTime(time);
+  }
 }
 
 function loadDataTab() {
@@ -168,4 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Service Worker registration failed:', error);
     });
   }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && isRunning) {
+      updateTimer();
+    }
+  });
 });
