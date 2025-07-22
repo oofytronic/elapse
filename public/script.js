@@ -30,7 +30,10 @@ function clearStorage() {
 function updateTimer() {
   if (isRunning) {
     time = Date.now() - startTime + (JSON.parse(localStorage.getItem('timer_state') || '{}').pausedTime || 0);
-    document.querySelector('#timer-display').textContent = formatTime(time);
+    const display = document.querySelector('#timer-display');
+    if (display) {
+      display.textContent = formatTime(time);
+    }
   }
 }
 
@@ -42,11 +45,18 @@ function toggleTimer() {
   lapButton.disabled = !isRunning;
   if (isRunning) {
     startTime = Date.now() - (time || 0);
-    localStorage.setItem('timer_state', JSON.stringify({ isRunning: true, startTime, pausedTime: time }));
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning: true, startTime, pausedTime: time, laps }));
     interval = setInterval(updateTimer, 10);
+    // Request a wake lock to keep the app alive in the background (if supported)
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').then(lock => {
+        console.log('Wake lock acquired');
+        lock.addEventListener('release', () => console.log('Wake lock released'));
+      }).catch(error => console.error('Wake lock request failed:', error));
+    }
   } else {
     clearInterval(interval);
-    localStorage.setItem('timer_state', JSON.stringify({ isRunning: false, pausedTime: time }));
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning: false, pausedTime: time, laps }));
   }
 }
 
@@ -54,6 +64,7 @@ function addLap() {
   if (!isRunning) return;
   const lapTime = time - (laps.length > 0 ? laps.reduce((sum, lap) => sum + lap, 0) : 0);
   laps.push(lapTime);
+  localStorage.setItem('timer_state', JSON.stringify({ isRunning, startTime, pausedTime: time, laps }));
   const lapList = document.querySelector('#laps');
   const li = document.createElement('li');
   li.textContent = `Lap ${laps.length}: ${formatTime(lapTime)}`;
@@ -96,12 +107,27 @@ function loadTimerTab() {
     isRunning = true;
     startTime = timerState.startTime;
     time = timerState.pausedTime || 0;
+    laps = timerState.laps || [];
     document.querySelector('#start-button').textContent = 'Pause';
     document.querySelector('#lap-button').disabled = false;
     interval = setInterval(updateTimer, 10);
+    // Request wake lock on restore
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').then(lock => {
+        console.log('Wake lock acquired on restore');
+        lock.addEventListener('release', () => console.log('Wake lock released'));
+      }).catch(error => console.error('Wake lock request failed:', error));
+    }
   } else if (timerState.pausedTime) {
     time = timerState.pausedTime;
+    laps = timerState.laps || [];
     document.querySelector('#timer-display').textContent = formatTime(time);
+    const lapList = document.querySelector('#laps');
+    laps.forEach((lap, index) => {
+      const li = document.createElement('li');
+      li.textContent = `Lap ${index + 1}: ${formatTime(lap)}`;
+      lapList.appendChild(li);
+    });
   }
 }
 
@@ -192,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && isRunning) {
+    if (document.visibilityState === 'visible') {
       updateTimer();
     }
   });
