@@ -22,7 +22,7 @@ function getSessions() {
 
 function clearStorage() {
   localStorage.removeItem('elapse_sessions');
-  loadDataTab(); // Refresh Data tab to reflect cleared storage
+  loadDataTab();
 }
 
 function toggleTimer() {
@@ -95,29 +95,38 @@ function loadDataTab() {
     chartHtml = `
       <canvas id="session-chart"></canvas>
       <script>
-        new Chart(document.getElementById('session-chart'), {
-          type: 'line',
-          data: {
-            labels: ${JSON.stringify(sessions.map((_, index) => `Session ${index + 1}`))},
-            datasets: [{
-              label: 'Total Time (seconds)',
-              data: ${JSON.stringify(sessions.map(session => session.totalTime / 1000))},
-              borderColor: '#FFDAB9',
-              backgroundColor: '#FFE4C4',
-              tension: 0.1
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: 'top' },
-              title: { display: true, text: 'Session Total Times' }
+        try {
+          new Chart(document.getElementById('session-chart'), {
+            type: 'line',
+            data: {
+              labels: ${JSON.stringify(sessions.map((_, index) => `Session ${index + 1}`))},
+              datasets: [{
+                label: 'Total Time (seconds)',
+                data: ${JSON.stringify(sessions.map(session => session.totalTime / 1000))},
+                borderColor: '#FFDAB9',
+                backgroundColor: '#FFE4C4',
+                tension: 0.1
+              }]
             },
-            scales: {
-              y: { beginAtZero: true, title: { display: true, text: 'Time (seconds)' } }
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Session Total Times' }
+              },
+              scales: {
+                y: { 
+                  beginAtZero: true, 
+                  title: { display: true, text: 'Time (seconds)' },
+                  grid: { borderColor: '#F5F5DC', color: '#F5F5DC' }
+                },
+                x: { grid: { borderColor: '#F5F5DC', color: '#F5F5DC' } }
+              }
             }
-          }
-        });
+          });
+        } catch (error) {
+          console.error('Chart.js initialization failed:', error);
+        }
       </script>
     `;
   }
