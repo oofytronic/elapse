@@ -1,6 +1,6 @@
 :root {
-  --background: #144b72; /* dark blue */
-  --text: #253c4c; /* Beige */
+  --background: #144b72; /* Dark blue */
+  --text: #253c4c; /* Charcoal */
   --peach: #FFDAB9;
   --peach-light: #FFE4C4;
   --peach-bright: #db8f9a;
@@ -9,10 +9,14 @@
 
 html, body {
   font-family: 'Merriweather', serif;
-  background-color: var(--background);
+  background: linear-gradient(135deg, #144b72 0%, #0d2f4c 100%);
   color: var(--text);
   margin: 0;
   padding: 0;
+}
+
+body {
+  min-height: 100dvh;
 }
 
 .header {
@@ -58,7 +62,7 @@ html, body {
 
 .tab-button.active {
   background-color: var(--peach);
-  color: #36454F; /* Charcoal for contrast */
+  color: #144b72; /* Dark blue for contrast */
 }
 
 .tab-content {
@@ -88,7 +92,7 @@ button {
   border: none;
   border-radius: 0.25rem;
   cursor: pointer;
-  color: #36454F; /* Charcoal for contrast */
+  color: #144b72; /* Dark blue for contrast */
   font-family: 'Merriweather', serif;
 }
 
@@ -120,7 +124,7 @@ button:disabled {
 
 .lap-list li, .sessions-list li, .session-details li {
   padding: 0.5rem;
-  background-color: var(--peach-light);
+  background-color: var(--peach-dark);
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
 }

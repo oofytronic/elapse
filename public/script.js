@@ -29,7 +29,7 @@ function clearStorage() {
 
 function updateTimer() {
   if (isRunning) {
-    time = Date.now() - startTime + (JSON.parse(localStorage.getItem('timer_state') || '{}').pausedTime || 0);
+    time = Date.now() - startTime; // Calculate time from startTime only
     const display = document.querySelector('#timer-display');
     if (display) {
       display.textContent = formatTime(time);
@@ -44,10 +44,9 @@ function toggleTimer() {
   startButton.textContent = isRunning ? 'Pause' : 'Start';
   lapButton.disabled = !isRunning;
   if (isRunning) {
-    startTime = Date.now() - (time || 0);
-    localStorage.setItem('timer_state', JSON.stringify({ isRunning: true, startTime, pausedTime: time, laps }));
+    startTime = Date.now() - time; // Adjust startTime to account for current time
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning: true, startTime, laps }));
     interval = setInterval(updateTimer, 10);
-    // Request a wake lock to keep the app alive in the background (if supported)
     if ('wakeLock' in navigator) {
       navigator.wakeLock.request('screen').then(lock => {
         console.log('Wake lock acquired');
@@ -63,22 +62,35 @@ function toggleTimer() {
 function addLap() {
   if (!isRunning) return;
   const lapTime = time - (laps.length > 0 ? laps.reduce((sum, lap) => sum + lap, 0) : 0);
-  laps.push(lapTime);
-  localStorage.setItem('timer_state', JSON.stringify({ isRunning, startTime, pausedTime: time, laps }));
-  const lapList = document.querySelector('#laps');
-  const li = document.createElement('li');
-  li.textContent = `Lap ${laps.length}: ${formatTime(lapTime)}`;
-  lapList.appendChild(li);
+  if (lapTime > 0) {
+    laps.push(lapTime);
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning, startTime, pausedTime: time, laps }));
+    const lapList = document.querySelector('#laps');
+    const li = document.createElement('li');
+    li.textContent = `Lap ${laps.length}: ${formatTime(lapTime)}`;
+    lapList.appendChild(li);
+  }
 }
 
-function resetTimer() {
+function stopTimer() {
+  if (isRunning) {
+    const lapTime = time - (laps.length > 0 ? laps.reduce((sum, lap) => sum + lap, 0) : 0);
+    if (lapTime > 0) {
+      laps.push(lapTime);
+      const lapList = document.querySelector('#laps');
+      const li = document.createElement('li');
+      li.textContent = `Lap ${laps.length}: ${formatTime(lapTime)}`;
+      lapList.appendChild(li);
+    }
+    isRunning = false;
+    clearInterval(interval);
+    localStorage.setItem('timer_state', JSON.stringify({ isRunning: false, pausedTime: time, laps }));
+  }
   if (laps.length > 0) {
     saveSession();
   }
   time = 0;
   laps = [];
-  isRunning = false;
-  clearInterval(interval);
   localStorage.removeItem('timer_state');
   document.querySelector('#timer-display').textContent = '00:00:00';
   document.querySelector('#laps').innerHTML = '';
@@ -94,24 +106,22 @@ function loadTimerTab() {
     <div class="buttons">
       <button id="start-button" onclick="toggleTimer()">Start</button>
       <button id="lap-button" onclick="addLap()" ${!isRunning ? 'disabled' : ''}>Lap</button>
-      <button onclick="resetTimer()">Reset</button>
+      <button onclick="stopTimer()">Stop</button>
     </div>
     <div class="lap-list">
       <h2>Laps</h2>
       <ul id="laps"></ul>
     </div>
   `;
-  // Restore timer state if exists
   const timerState = JSON.parse(localStorage.getItem('timer_state') || '{}');
   if (timerState.isRunning) {
     isRunning = true;
     startTime = timerState.startTime;
-    time = timerState.pausedTime || 0;
+    time = Date.now() - startTime; // Recalculate time on load
     laps = timerState.laps || [];
     document.querySelector('#start-button').textContent = 'Pause';
     document.querySelector('#lap-button').disabled = false;
     interval = setInterval(updateTimer, 10);
-    // Request wake lock on restore
     if ('wakeLock' in navigator) {
       navigator.wakeLock.request('screen').then(lock => {
         console.log('Wake lock acquired on restore');
@@ -152,7 +162,7 @@ function loadDataTab() {
               datasets: [{
                 label: 'Total Time (seconds)',
                 data: ${JSON.stringify(sessions.map(session => session.totalTime / 1000))},
-                borderColor: '#FFDAB9',
+                borderColor: '#db8f9a',
                 backgroundColor: '#FFE4C4',
                 tension: 0.1
               }]
@@ -167,9 +177,9 @@ function loadDataTab() {
                 y: { 
                   beginAtZero: true, 
                   title: { display: true, text: 'Time (seconds)' },
-                  grid: { borderColor: '#F5F5DC', color: '#F5F5DC' }
+                  grid: { borderColor: '#253c4c', color: '#253c4c' }
                 },
-                x: { grid: { borderColor: '#F5F5DC', color: '#F5F5DC' } }
+                x: { grid: { borderColor: '#253c4c', color: '#253c4c' } }
               }
             }
           });
