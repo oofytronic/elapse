@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elapse</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="manifest" href="/public/manifest.json">
+  <link rel="icon" href="/public/favicon.ico">
+  <meta name="theme-color" content="#FFDAB9">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap">
+</head>
+<body>
+  <header class="header">
+    <img src="/public/elapse-logo.png" alt="Elapse Logo" class="logo">
+    <h1 class="title">Elapse</h1>
+  </header>
+  <div class="tabs">
+    <button class="tab-button active" onclick="loadTab('timer')">Timer</button>
+    <button class="tab-button" onclick="loadTab('data')">Data</button>
+  </div>
+  <div id="tab-content" class="tab-content"></div>
+  <script src="/public/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

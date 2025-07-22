@@ -1,0 +1,12 @@
+{
+  "name": "elapse",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "serve ."
+  },
+  "dependencies": {
+    "serve": "latest",
+    "chart.js": "latest"
+  }
+}

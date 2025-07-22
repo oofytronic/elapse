@@ -1,0 +1,135 @@
+:root {
+  --background: #253c4c; /* Charcoal */
+  --text: #253c4c; /* Beige */
+  --peach: #FFDAB9;
+  --peach-light: #FFE4C4;
+  --peach-bright: #FFB6C1;
+  --peach-dark: #e9c3a1;
+}
+
+html, body {
+  font-family: 'Merriweather', serif;
+  background-color: var(--background);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.logo {
+  height: 2rem; /* Matches the h1 font-size */
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--peach-bright);
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  background-color: var(--peach-dark);
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: var(--text);
+  font-family: 'Merriweather', serif;
+}
+
+.tab-button:hover {
+  background-color: var(--peach);
+}
+
+.tab-button.active {
+  background-color: var(--peach);
+  color: #36454F; /* Charcoal for contrast */
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.timer-display {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: beige;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  background-color: var(--peach);
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: #36454F; /* Charcoal for contrast */
+  font-family: 'Merriweather', serif;
+}
+
+button:hover {
+  background-color: var(--peach-light);
+}
+
+button:disabled {
+  background-color: var(--peach-bright);
+  cursor: not-allowed;
+}
+
+.lap-list, .sessions-list, .session-details {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+.lap-list h2, .sessions-list h3, .session-details h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--peach-bright);
+}
+
+.lap-list ul, .sessions-list ul, .session-details ul {
+  list-style: none;
+  padding: 0;
+}
+
+.lap-list li, .sessions-list li, .session-details li {
+  padding: 0.5rem;
+  background-color: var(--peach-light);
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.sessions-list li {
+  cursor: pointer;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 600px;
+}
